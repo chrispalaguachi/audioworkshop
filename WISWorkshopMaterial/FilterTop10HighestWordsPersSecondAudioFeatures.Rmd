@@ -1,0 +1,67 @@
+---
+title: "How to extract top 10 values of audio features"
+output: html_notebook
+---
+
+Download r packages for data wrangling
+```{r}
+install.packages("dplyr")
+library(dplyr)
+
+```
+
+Write the data in
+```{r}
+d1 <- read.csv("OrangeMergedProsodic_Turns_Transcript.csv")
+```
+
+Wrangle the data depending on the audio features
+```{r}
+# Assuming your_dataset is your dataset and your_variable is the variable you want to rearrange
+# target_column is the column based on which you want to rearrange
+
+rearranged_data <- d1[order(-d1$words_per_second), ]
+```
+
+Since we are no longer working with chunks of data, where the number of sentence can vary for the 30sec chunk, we can now just rearrange the data and select the top 10 datasets since are interested in looking at the highest number of words detected PER sentence (not chunk)
+```{r}
+subset_data <- rearranged_data[1:10, ]
+
+
+```
+
+It is important to go back and check the acutal dataset after selecting the top 10 audio features just in case to spot any issues (run the dataset, move through the dataset to find the words_per_second variable, what do you notice?)
+```{r}
+
+subset_data
+
+```
+In this dataset we notice that all the "words_per_second" top 10 values have a value of "INF". Since the duration is 0, the LIWC output was unable to give us a true "words_per_second" ratio. Although all data is important, and since this measure might be important for the lowest "words_per_second" more than it would for our highest WPS, we will run some data wrangling to exclude these values from our subset of data
+```{r}
+# Assuming your_dataset is your dataset
+subset_data <- rearranged_data[!is.infinite(rearranged_data$words_per_second), ]
+```
+
+
+Lets try looking at that again with the INF removed. You can look at the number of obs in the right data panel change. Changing from 2154 to 2140. Now we'd like to run the filter that subset the data back into top 10.
+```{r}
+subset_data <- subset_data[1:10, ]
+```
+
+
+
+Since it is extremely important to validate if your script is doing the correct thing, run a plot to confirm if there are 10 unique chunks_ids that are being used
+```{r}
+# Assuming your_dataset is your dataset
+ggplot(subset_data, aes(x = chunk_id)) +
+  geom_bar() +
+  labs(title = "Frequency of chunk_id Values", x = "Chunk ID", y = "Frequency")
+
+```
+
+Save the file with the new data set to your directory for future/futher analyses
+```{r}
+write.csv(subset_data, "Top10HighestNWordsPerSentence.csv")
+
+```
+

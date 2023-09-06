@@ -1,0 +1,47 @@
+---
+title: "How to extract top 10 values of audio features"
+output: html_notebook
+---
+
+Download r packages for data wrangling
+```{r}
+install.packages("dplyr")
+library(dplyr)
+
+```
+
+Write the data in
+```{r}
+d1 <- read.csv("OrangeMergedProsodic_Turns_Transcript.csv")
+```
+
+Wrangle the data depending on the audio features
+```{r}
+# Assuming your_dataset is your dataset and your_variable is the variable you want to rearrange
+# target_column is the column based on which you want to rearrange
+
+rearranged_data <- d1[order(-d1$nwords), ]
+```
+
+Since we are no longer working with chunks of data, where the number of sentence can vary for the 30sec chunk, we can now just rearrange the data and select the top 10 datasets since are interested in looking at the highest number of words detected PER sentence (not chunk)
+```{r}
+subset_data <- rearranged_data[1:10, ]
+
+
+```
+
+Since it is extremely important to validate if your script is doing the correct thing, run a plot to confirm if there are 10 unique chunks_ids that are being used
+```{r}
+# Assuming your_dataset is your dataset
+ggplot(subset_data, aes(x = chunk_id)) +
+  geom_bar() +
+  labs(title = "Frequency of chunk_id Values", x = "Chunk ID", y = "Frequency")
+
+```
+
+Save the file with the new data set to your directory for future/futher analyses
+```{r}
+write.csv(subset_data, "Top10HighestNWordsPerSentence.csv")
+
+```
+

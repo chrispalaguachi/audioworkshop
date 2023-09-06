@@ -1,0 +1,55 @@
+---
+title: "How to extract top 10 values of audio features"
+output: html_notebook
+---
+
+Download r packages for data wrangling
+```{r}
+install.packages("dplyr")
+library(dplyr)
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+Write the data in
+```{r}
+d1 <- read.csv("OrangeMergedProsodic_Turns_Transcript.csv")
+```
+
+Wrangle the data depending on the audio features
+```{r}
+# Assuming your_dataset is your dataset and your_variable is the variable you want to rearrange
+# target_column is the column based on which you want to rearrange
+
+rearranged_data <- d1[order(-d1$pd_chunk_median_loudness), ]
+
+```
+
+
+Since we are working in chunks, we are interested in looking a unique values, so depending on the audio feature rewrite the variable you are interested in investigating
+```{r}
+# Assuming test is your dataset
+unique_top_values <- unique(rearranged_data$pd_chunk_median_loudness)
+top_10_unique_values <- head(unique_top_values, 10)
+
+subset_data <- subset(rearranged_data, pd_chunk_median_loudness %in% top_10_unique_values)
+
+
+```
+
+Since it is extremely important to validate if your script is doing the correct thing, run a plot to confirm if there are 10 unique chunks_ids that are being used
+```{r}
+# Assuming your_dataset is your dataset
+ggplot(subset_data, aes(x = chunk_id)) +
+  geom_bar() +
+  labs(title = "Frequency of chunk_id Values", x = "Chunk ID", y = "Frequency")
+
+```
+
+
+Save the file with the new data set to your directory for future/futher analyses
+```{r}
+write.csv(subset_data, "Top10LoudestChunks.csv")
+
+```
+
